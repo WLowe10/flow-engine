@@ -23,37 +23,42 @@ import { Input, Output, node, ports, port, useGuards } from "hawk-engine";
   input: ["a", "b"],
   output: ["out"] 
 }) 
+@useGuards(TestGuard)
 export class AddNode {
-    private num1?: number = undefined;
-    private num2?: number = undefined;
+    private numA?: number = undefined;
+    private numB?: number = undefined;
 
-    @port("a") //listens on a port called "a"
+    @port("a") //is protected by TestGuard
     public async handleNumOne(input: Input, output: Output) {
-        const num = input.getValue();
+        this.numA = input.getValue();
 
-        if (typeof this.num2 === "number") {
-            const sum = num + this.num2;
-
-            output.send(["out"], sum);
-        }
-
+        this.add(output);
     };
 
-    @port("b") //listens on a port called "b"
+    @port("b") 
+    @useGuards(OtherGuard) // is protected both TestGuard and OtherGuard
     public async handleNumTwo(input: Input, output: Output) {
-        const num = input.getValue();
+        this.numB = input.getValue();
 
-        if (typeof this.num1 === "number") {
-            const sum = num + this.num1;
+        this.add(output);
+    };
 
+    private add(output: Output) {
+        if (typeof this.numA === "number" && typeof this.numB === "number") {
+            const sum = this.numA + this.numB;
+
+            console.log("sum", sum)
             output.send(["out"], sum);
+
+            //reset the numbers
+            this.flush();
         }
     };
 
     //this method resets the stored numbers to undefined
     private flush() {
-        this.num1 = undefined;
-        this.num2 = undefined;
+        this.numA = undefined;
+        this.numB = undefined;
     }
 }
 
@@ -64,6 +69,9 @@ export class AddNode {
 The engine allows you to fork a "context". Services can be registered to the engine allowing you to implement dependency injection into your nodes or your others services.
 
 ```typescript
+import "reflect-metadata";
+import { ContextEvents, Engine, Packet } from "hawk-engine";
+
 //create an engine
 const engine = new Engine({
     nodes: [
@@ -132,8 +140,8 @@ start();
 a guard can be used to "protect" a node from executing. the implementation is very similar to NestJS.
 
 ```typescript
-import { injectable, Reflector } from "../../src";
-import type { IGuard, GuardContext } from "../../src";
+import { injectable, Reflector } from "hawk-engine";
+import type { IGuard, GuardContext } from "hawk-engine";
 
 @injectable()
 export class TestGuard implements IGuard {
@@ -159,7 +167,7 @@ export class TestGuard implements IGuard {
 now, a guard can be used either for all or a nodes ports, or for a specific port,
 
 ```typescript
-import { Input, Output, node, ports, port, useGuards } from "../../src";
+import { Input, Output, node, ports, port, useGuards } from "hawk-engine";
 import { TestGuard, OtherGuard } from "../guards";
 
 @node("add")
@@ -194,12 +202,10 @@ export class AddNode {
             console.log("sum", sum)
             output.send(["out"], sum);
 
-            //reset the numbers
             this.flush();
         }
     };
 
-    //this method resets the stored numbers to undefined
     private flush() {
         this.numA = undefined;
         this.numB = undefined;
