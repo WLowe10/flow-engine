@@ -1,11 +1,11 @@
 
-# Hawk Engine
+# Flow Engine
 
-Hawk Engine is a robust, modular workflow engine. This implements flow based programming concepts where each “node” lives in isolation and performs work in chains by propagating data down the flow. It uses decorators to create a beautiful and seamless developer experience and allows dependency injection. Many concepts are adopted from NestJS.
+Flow Engine is a robust, modular workflow engine. This implements flow based programming concepts where each “node” lives in isolation and performs work in chains by propagating data down the flow. It uses decorators to create a beautiful and seamless developer experience and allows dependency injection. Many design aspects are adopted from NestJS.
 
 **This documentation is NOT complete. This library is currently a prototype. More comprehensize documentation will be made in further versions**
 
-**Hawk engine is in development and the API may (likely) change**
+**Flow engine is in development and the API may (likely) change**
 
 
 ## Usage/Examples
@@ -15,7 +15,7 @@ Hawk Engine is a robust, modular workflow engine. This implements flow based pro
 This node receives two numbers and outputs the sum. It also works as a control flow node since it waits until it has received two inputs. It has two ports, a and b, both are pseudo variables as expressed in a + b form.
 
 ```typescript
-import { Input, Output, node, ports, port, useGuards } from "hawk-engine";
+import { Input, Output, node, ports, port, useGuards } from "flow-engine";
 
 
 @node("add") //the name of the node to be referenced inside of a flow
@@ -70,7 +70,7 @@ The engine allows you to fork a "context". Services can be registered to the eng
 
 ```typescript
 import "reflect-metadata";
-import { ContextEvents, Engine, Packet } from "hawk-engine";
+import { ContextEvents, Engine, Packet } from "flow-engine";
 
 //create an engine
 const engine = new Engine({
@@ -140,8 +140,8 @@ start();
 a guard can be used to "protect" a node from executing. the implementation is very similar to NestJS.
 
 ```typescript
-import { injectable, Reflector } from "hawk-engine";
-import type { IGuard, GuardContext } from "hawk-engine";
+import { injectable, Reflector } from "flow-engine";
+import type { IGuard, GuardContext } from "flow-engine";
 
 @injectable()
 export class TestGuard implements IGuard {
@@ -167,7 +167,7 @@ export class TestGuard implements IGuard {
 now, a guard can be used either for all or a nodes ports, or for a specific port,
 
 ```typescript
-import { Input, Output, node, ports, port, useGuards } from "hawk-engine";
+import { Input, Output, node, ports, port, useGuards } from "flow-engine";
 import { TestGuard, OtherGuard } from "../guards";
 
 @node("add")

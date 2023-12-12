@@ -204,6 +204,7 @@ export class ExecutionContext extends EventEmitter {
         };
 
         await this.onBeforeProcess(node, inPacket);
+
         if (!this.validatePacket(node, inPacket)) {
             this.warn(new UnknownPortException(node.id));
             done();
